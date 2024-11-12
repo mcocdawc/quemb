@@ -239,7 +239,6 @@ class Frags:
             Alpha (0) or beta (1) spin for unrestricted calculation, by default None
         """
 
-
         if self._mf is not None:
             self._mf = None
         if self._mc is not None:
@@ -325,7 +324,7 @@ class Frags:
         return cout
 
     def energy(self, rdm2s, eri=None, print_fragE=False):
-        ## This function uses old energy expression and will be removed
+        # This function uses old energy expression and will be removed
         rdm2s = numpy.einsum(
             "ijkl,pi,qj,rk,sl->pqrs",
             0.5 * rdm2s,

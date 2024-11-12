@@ -102,7 +102,7 @@ class fragpart:
         self.allcen = allcen
         self.valence_basis = valence_basis
         self.kpt = kpt
-        self.molecule = False  ### remove this
+        self.molecule = False  # remove this
 
         # Check for frozen core approximation
         if frozen_core:

@@ -768,9 +768,8 @@ def eritransform_parallel(a, atom, basis, kpts, C_ao_emb, cderi):
     """
     Wrapper for parallel eri transformation
     """
-    from pyscf.pbc import df, gto
-
     from libdmet.eri_transform import get_emb_eri_fast_gdf
+    from pyscf.pbc import df, gto
 
     cell = gto.Cell()
     cell.a = a
