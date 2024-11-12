@@ -299,10 +299,9 @@ class BE:
             self.initialize(None, compute_hf, restart=True)
 
     from molbe.external.optqn import get_be_error_jacobian
-
-    from ._opt import optimize
-    from .lo import localize
-    from .rdm import compute_energy_full, rdm1_fullbasis
+    from molbe._opt import optimize
+    from molbe.lo import localize
+    from molbe.rdm import compute_energy_full, rdm1_fullbasis
 
     def print_ini(self):
         """

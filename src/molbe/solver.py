@@ -5,6 +5,7 @@ import os
 import sys
 
 import numpy
+from pyscf import ao2mo, cc, fci
 
 from molbe import be_var
 from molbe.external.ccsd_rdm import (
@@ -13,6 +14,8 @@ from molbe.external.ccsd_rdm import (
     make_rdm2_uccsd,
     make_rdm2_urlx,
 )
+from molbe.external.uccsd_eri import make_eris_incore
+from molbe.helper import get_frag_energy, get_frag_energy_u
 
 
 def be_func(
@@ -89,12 +92,6 @@ def be_func(
         Depending on the options, it returns the norm of the error vector, the energy,
         or a combination of these values.
     """
-    import os
-
-    from pyscf import ao2mo, fci
-
-    from .helper import get_frag_energy
-
     rdm_return = False
     if relax_density:
         rdm_return = True
@@ -142,7 +139,6 @@ def be_func(
 
         elif solver == "HCI":
             from pyscf import hci
-            # pilot pyscf.hci only in old versions
 
             nao, nmo = fobj._mf.mo_coeff.shape
 
@@ -206,7 +202,7 @@ def be_func(
             rdm1_tmp, rdm2s = mch.fcisolver.make_rdm12(0, nmo, nelec)
 
         elif solver == "SCI":
-            from pyscf import ao2mo, cornell_shci, mcscf
+            from pyscf import cornell_shci, mcscf
 
             nao, nmo = fobj._mf.mo_coeff.shape
             nelec = (fobj.nsocc, fobj.nsocc)
@@ -392,8 +388,6 @@ def be_func_u(
         or a combination of these values.
     """
     from molbe.external.unrestricted_utils import make_uhf_obj
-
-    from .helper import get_frag_energy_u
 
     rdm_return = False
     if relax_density:
@@ -952,10 +946,6 @@ def solve_uccsd(
         - rdm2 (tuple, numpy.ndarray, optional): Two-particle density matrix
             (if rdm2_return is True and rdm_return is True).
     """
-    from pyscf import ao2mo, cc
-
-    from molbe.external.uccsd_eri import make_eris_incore
-
     C = mf.mo_coeff
     nao = [C[s].shape[0] for s in [0, 1]]
 
@@ -1075,9 +1065,6 @@ def schmidt_decomposition(
         returns TA (above), number of orbitals in the fragment space,
         and number of orbitals in bath space
     """
-
-    import functools
-
     # Threshold for eigenvalue significance
     thres = 1.0e-10
 

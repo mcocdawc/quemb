@@ -133,8 +133,6 @@ class fragpart:
             print("exiting", flush=True)
             sys.exit()
 
-    from .lchain import chain
-
     def hchain_simple(self):
         """Hard coded fragmentation feature"""
         self.natom = self.mol.natm

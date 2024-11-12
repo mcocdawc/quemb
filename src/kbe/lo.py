@@ -1,14 +1,24 @@
 # Author(s): Oinam Meitei
 #            Henry Tran
 #
+import functools
+import os
 import sys
 from functools import reduce
 
 import numpy
+import scipy.linalg
+from libdmet.lo import pywannier90
 
+from kbe.lo_k import (
+    get_iao_k,
+    get_pao_native_k,
+    get_xovlp_k,
+    remove_core_mo_k,
+    symm_orth_k,
+)
 from molbe.external.lo_helper import get_aoind_by_atom, reorder_by_atom_
-
-# iao tmp
+from molbe.helper import ncore_
 
 
 class KMF:
@@ -52,12 +62,6 @@ def localize(
     iao_wannier : bool
        Whether to perform Wannier localization in the IAO space
     """
-    import functools
-
-    import scipy.linalg
-
-    from molbe.helper import ncore_
-
     if lo_method == "iao":
         if valence_basis == "sto-3g":
             from .basis_sto3g_core_val import core_basis, val_basis
@@ -129,18 +133,6 @@ def localize(
         self.cinv = cinv_
 
     elif lo_method == "iao":
-        import os
-
-        from libdmet.lo import pywannier90
-
-        from .lo_k import (
-            get_iao_k,
-            get_pao_native_k,
-            get_xovlp_k,
-            remove_core_mo_k,
-            symm_orth_k,
-        )
-
         if not iao_val_core or not self.frozen_core:
             Co = self.C[:, :, : self.Nocc].copy()
             S12, S2 = get_xovlp_k(self.cell, self.kpts, basis=valence_basis)
@@ -396,11 +388,6 @@ def localize(
         self.cinv = cinv_
 
     elif lo_method == "wannier":
-        # from pyscf.pbc.tools import pywannier90
-        from libdmet.lo import pywannier90
-
-        from .lo_k import remove_core_mo_k
-
         nk, nao, nmo = self.C.shape
         lorb = numpy.zeros((nk, nao, nmo), dtype=numpy.complex128)
         lorb_nocore = numpy.zeros((nk, nao, nmo - self.ncore), dtype=numpy.complex128)

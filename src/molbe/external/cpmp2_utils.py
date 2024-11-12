@@ -5,7 +5,10 @@
 
 import numpy as np
 import scipy.linalg as slg
-from pyscf import ao2mo
+from pyscf import ao2mo, scf
+
+from molbe.external.cphf_utils import cphf_kernel_batch as cphf_kernel
+from molbe.external.cphf_utils import get_cpuhf_u_batch as uhf_phf_kernel
 
 """ RMP2 implementation
 """
@@ -23,8 +26,6 @@ def get_Diajb_r(moe, no):
 
 
 def get_dF_r(no, V, C, Q, u):
-    from pyscf import scf
-
     n = C.shape[0]
     nv = n - no
     Co = C[:, :no]
@@ -107,8 +108,6 @@ def get_dPmp2_batch_r(C, moe, V, no, Qs, aorep=True):
     Vovov = ao2mo.incore.general(V, (Co, Cv, Co, Cv)).reshape(no, nv, no, nv)
     Diajb = get_Diajb_r(moe, no)
     t2 = Vovov / Diajb
-
-    from .cphf_utils import cphf_kernel_batch as cphf_kernel
 
     us = cphf_kernel(C, moe, V, no, Qs)
     nQ = len(Qs)
@@ -311,9 +310,7 @@ def get_dPmp2_batch_u(C, moe, V, no, Qs, aorep=True):
     Diajb = get_Diajb_u(moe, no)
     t2 = [Vovov[s] / Diajb[s] for s in range(3)]
 
-    from .cphf_utils import get_cpuhf_u_batch as cphf_kernel
-
-    us = cphf_kernel(C, moe, V, no, Qs)
+    us = uhf_phf_kernel(C, moe, V, no, Qs)
     nQ = len(Qs)
     dPs = [None] * nQ
     Phf = [np.diag([1 if i < no[s] else 0 for i in range(n[s])]) for s in [0, 1]]

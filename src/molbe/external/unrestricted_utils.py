@@ -1,14 +1,16 @@
 # Authors: Leah Weisburn, Hongzhou Ye, Henry Tran
 
+import ctypes
 import functools
 
 import h5py
 import numpy
+from pyscf import ao2mo, lib
+from pyscf import scf
+
 
 
 def make_uhf_obj(fobj_a, fobj_b, frozen=False):
-    from pyscf import scf
-
     """
     Constructs UHF object from the alpha and beta components
     """
@@ -57,8 +59,6 @@ def make_uhf_obj(fobj_a, fobj_b, frozen=False):
 
 
 def uccsd_restore_eris(symm, fobj_a, fobj_b, pad0=True, skip_Vab=False):
-    from pyscf import ao2mo
-
     """
     restore ERIs in the correct spin spaces
     """
@@ -98,11 +98,6 @@ def restore_eri_gen(targetsym, eri, norb1, norb2):
 
 
 def _convert_eri_gen(origsym, targetsym, eri, norb1, norb2):
-    import ctypes
-
-    from pyscf import lib
-
-    libao2mo = lib.load_library("libao2mo")
     """
     #NOTE: IF YOU GET AN ERROR ABOUT THIS ATTRIBUTE:
     This requires a custom PySCF compilation
@@ -145,6 +140,8 @@ void AO2MOrestore_nr1to4_gen(double *eri1, double *eri4, int norb1, int norb2)
         } }
 }
     """
+    libao2mo = lib.load_library("libao2mo")
+
     fn = getattr(libao2mo, "AO2MOrestore_nr%sto%s_gen" % (origsym, targetsym))
 
     if targetsym == 1:
