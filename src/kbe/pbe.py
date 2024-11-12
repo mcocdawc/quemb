@@ -8,9 +8,8 @@ import h5py
 import numpy
 
 import molbe.be_var as be_var
-
-from .misc import storePBE
-from .pfrag import Frags
+from kbe.misc import storePBE
+from kbe.pfrag import Frags
 
 
 class BE:
@@ -771,7 +770,7 @@ def eritransform_parallel(a, atom, basis, kpts, C_ao_emb, cderi):
     """
     from pyscf.pbc import df, gto
 
-    from molbe.external.eri_transform import get_emb_eri_fast_gdf
+    from libdmet.eri_transform import get_emb_eri_fast_gdf
 
     cell = gto.Cell()
     cell.a = a

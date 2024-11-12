@@ -2,9 +2,8 @@
 
 import sys
 
+from kbe.autofrag import autogen
 from molbe.helper import get_core
-
-from .autofrag import autogen
 
 
 def print_mol_missing():

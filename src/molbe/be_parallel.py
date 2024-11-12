@@ -7,10 +7,8 @@ import numpy
 
 from molbe.external.ccsd_rdm import make_rdm1_uccsd, make_rdm2_uccsd
 from molbe.external.unrestricted_utils import make_uhf_obj
-
-from .helper import *
-from .helper import get_frag_energy
-from .solver import (
+from molbe.helper import get_eri, get_frag_energy, get_frag_energy_u, get_scfObj
+from molbe.solver import (
     make_rdm1_ccsd_t1,
     make_rdm2_urlx,
     solve_ccsd,

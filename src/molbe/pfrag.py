@@ -5,8 +5,8 @@ import functools
 import h5py
 import numpy
 
-from .helper import *
-from .solver import schmidt_decomposition
+from molbe.helper import get_eri, get_scfObj, get_veff
+from molbe.solver import schmidt_decomposition
 
 
 class Frags:

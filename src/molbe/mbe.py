@@ -7,8 +7,7 @@ import h5py
 import numpy
 
 import molbe.be_var as be_var
-
-from .pfrag import Frags
+from molbe.pfrag import Frags
 
 
 class storeBE:

@@ -2,8 +2,8 @@
 
 import sys
 
-from .autofrag import autogen
-from .helper import get_core
+from molbe.autofrag import autogen
+from molbe.helper import get_core
 
 
 class fragpart:
