@@ -4,9 +4,11 @@ import os
 import sys
 import time
 
+import h5py
 import numpy
-from pyscf import gto, scf
+from pyscf import ao2mo, df, gto, qmmm, scf
 from pyscf.lib import chkfile
+from pyscf.tools import fcidump
 
 
 def libint2pyscf(
@@ -90,8 +92,6 @@ def libint2pyscf(
     mol.incore_anyway = True
     if use_df:
         mf = scf.UHF(mol).density_fit() if unrestricted else scf.RHF(mol).density_fit()
-        from pyscf import df
-
         mydf = df.DF(mol).build()
         mf.with_df = mydf
     else:
@@ -116,10 +116,6 @@ def be2fcidump(be_obj, fcidump_prefix, basis):
         'embedding' to get the integrals in the embedding basis
         'fragment_mo' to get the integrals in the fragment MO basis
     """
-    import h5py
-    from pyscf import ao2mo
-    from pyscf.tools import fcidump
-
     for fidx, frag in enumerate(be_obj.Fobjs):
         # Read in eri
         read = h5py.File(frag.eri_file, "r")
@@ -171,10 +167,6 @@ def ube2fcidump(be_obj, fcidump_prefix, basis):
         'embedding' to get the integrals in the embedding basis
         'fragment_mo' to get the integrals in the fragment MO basis
     """
-    import h5py
-    from pyscf import ao2mo
-    from pyscf.tools import fcidump
-
     for fidx, frag in enumerate(be_obj.Fobjs_a):
         # Read in eri
         read = h5py.File(frag.eri_file, "r")
@@ -324,9 +316,10 @@ def be2puffin(
         syntax: {'Atom_X': 'ECP_for_X'; 'Atom_Y': 'ECP_for_Y'}
         By default None
     """
-    from .fragment import fragpart
-    from .mbe import BE
-    from .ube import UBE
+    # the import has to happen here because of circular dependencies
+    from molbe.fragment import fragpart  # noqa: PLC0415
+    from molbe.mbe import BE  # noqa: PLC0415
+    from molbe.ube import UBE  # noqa: PLC0415
 
     # Check input validity
     assert os.path.exists(xyzfile), "Input xyz file does not exist"
@@ -337,7 +330,7 @@ def be2puffin(
         if hcore is None:  # from point charges OR with no external potential
             hcore_pyscf = None
         else:  # from starting Hamiltonian in Libint format
-            if libint_inp == True:
+            if libint_inp:
                 libint2pyscf = []
                 for labelidx, label in enumerate(mol.ao_labels()):
                     # pyscf: px py pz // 1 -1 0
@@ -373,8 +366,6 @@ def be2puffin(
                 use_df = False
             if hcore is None:
                 if pts_and_charges:
-                    from pyscf import qmmm
-
                     print(
                         "Using QM/MM Point Charges: Assuming QM structure in Angstrom "
                         "and MM Coordinates in Bohr !!!"
@@ -396,8 +387,6 @@ def be2puffin(
                 mf = scf.UHF(mol).set(max_cycle=200).newton()
         else:  # restricted
             if pts_and_charges:  # running QM/MM
-                from pyscf import qmmm
-
                 print(
                     "Using QM/MM Point Charges: Assuming QM structure in Angstrom "
                     "and MM Coordinates in Bohr !!!"
@@ -429,7 +418,7 @@ def be2puffin(
         time_pre_mf = time.time()
         mf.kernel()
         time_post_mf = time.time()
-        if mf.converged == True:
+        if mf.converged:
             print("Reference HF Converged", flush=True)
         else:
             print("Reference HF Unconverged -- stopping the calculation", flush=True)

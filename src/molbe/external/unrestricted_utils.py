@@ -5,9 +5,7 @@ import functools
 
 import h5py
 import numpy
-from pyscf import ao2mo, lib
-from pyscf import scf
-
+from pyscf import ao2mo, lib, scf
 
 
 def make_uhf_obj(fobj_a, fobj_b, frozen=False):

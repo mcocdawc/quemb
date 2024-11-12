@@ -5,7 +5,8 @@ import os
 import sys
 
 import numpy
-from pyscf import ao2mo, cc, fci
+from pyscf import ao2mo, cc, fci, mcscf, mp
+from pyscf.cc.ccsd_rdm import make_rdm2
 
 from molbe import be_var
 from molbe.external.ccsd_rdm import (
@@ -15,6 +16,7 @@ from molbe.external.ccsd_rdm import (
     make_rdm2_urlx,
 )
 from molbe.external.uccsd_eri import make_eris_incore
+from molbe.external.unrestricted_utils import make_uhf_obj
 from molbe.helper import get_frag_energy, get_frag_energy_u
 
 
@@ -138,7 +140,7 @@ def be_func(
             rdm1_tmp = mc.make_rdm1(civec, mc.norb, mc.nelec)
 
         elif solver == "HCI":
-            from pyscf import hci
+            from pyscf import hci  # noqa: PLC0415
 
             nao, nmo = fobj._mf.mo_coeff.shape
 
@@ -171,7 +173,7 @@ def be_func(
             rdm2s = rdm2aa + rdm2ab + rdm2ab.transpose(2, 3, 0, 1) + rdm2bb
 
         elif solver == "SHCI":
-            from pyscf.shciscf import shci
+            from pyscf.shciscf import shci  # noqa: PLC0415
 
             if scratch_dir is None and be_var.CREATE_SCRATCH_DIR:
                 tmp = os.path.join(be_var.SCRATCH, str(os.getpid()), str(fobj.dname))
@@ -202,7 +204,7 @@ def be_func(
             rdm1_tmp, rdm2s = mch.fcisolver.make_rdm12(0, nmo, nelec)
 
         elif solver == "SCI":
-            from pyscf import cornell_shci, mcscf
+            from pyscf import cornell_shci  # noqa: PLC0415
 
             nao, nmo = fobj._mf.mo_coeff.shape
             nelec = (fobj.nsocc, fobj.nsocc)
@@ -387,8 +389,6 @@ def be_func_u(
         Depending on the options, it returns the norm of the error vector, the energy,
         or a combination of these values.
     """
-    from molbe.external.unrestricted_utils import make_uhf_obj
-
     rdm_return = False
     if relax_density:
         rdm_return = True
@@ -587,8 +587,6 @@ def solve_mp2(mf, frozen=None, mo_coeff=None, mo_occ=None, mo_energy=None):
     pyscf.mp.mp2.MP2
         The MP2 object after running the calculation.
     """
-    from pyscf import mp
-
     # Set default values for optional parameters
     if mo_coeff is None:
         mo_coeff = mf.mo_coeff
@@ -666,9 +664,6 @@ def solve_ccsd(
         - cc__ (pyscf.cc.ccsd.CCSD, optional):
             CCSD object (if rdm_return is True and rdm2_return is False).
     """
-    from pyscf import cc
-    from pyscf.cc.ccsd_rdm import make_rdm2
-
     # Set default values for optional parameters
     if mo_coeff is None:
         mo_coeff = mf.mo_coeff
@@ -789,7 +784,7 @@ def solve_block2(mf: object, nocc: int, frag_scratch: str = None, **solver_kwarg
 
 
     """
-    from pyscf import dmrgscf, mcscf
+    from pyscf import dmrgscf  # noqa: PLC0415
 
     use_cumulant = solver_kwargs.pop("use_cumulant", True)
     norb = solver_kwargs.pop("norb", mf.mo_coeff.shape[1])
